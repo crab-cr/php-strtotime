@@ -3,8 +3,10 @@ require "./formats_parts"
 module Iom::PHP::Strtotime::Formats
 
   struct Yesterday
-    @@regex : Regex = /^yesterday/i
-    @@name: String = "yesterday"
+    def initialize ()
+      @regex : Regex = /^yesterday/i
+      @name: String = "yesterday"
+    end
     def callback (rp : ResultProto)
       rp.rd -= 1
       return rp.resetTime()
