@@ -1,0 +1,12 @@
+name: strtotime
+description: |
+  php's strtotime implemented in crystal
+
+version: 0.1.0
+
+authors:
+  - IOM <>
+
+crystal: 0.34.0
+
+license: MIT
