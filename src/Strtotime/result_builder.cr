@@ -25,7 +25,7 @@ module Iom::PHP::Strtotime
   
     # first or last day of month
     # 0 none, 1 first, -1 last
-    property firstOrLastDayOfMonth : Int32 = 0_i32
+    property first_or_last_day_of_month : Int32 = 0_i32
   
     # timezone correction in minutes
     property z : Int32? = nil
@@ -106,7 +106,7 @@ module Iom::PHP::Strtotime
     
       # first or last day of month
       # 0 none, 1 first, -1 last
-      @firstOrLastDayOfMonth = 0_i32
+      @first_or_last_day_of_month = 0_i32
     
       # timezone correction in minutes
       @z = nil

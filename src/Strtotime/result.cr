@@ -25,7 +25,7 @@ module Iom::PHP::Strtotime
   
     # first or last day of month
     # 0 none, 1 first, -1 last
-    # property firstOrLastDayOfMonth : Int32 = 0_i32
+    # property first_or_last_day_of_month : Int32 = 0_i32
   
     # timezone correction in minutes
     property z : Int64? = nil
@@ -54,7 +54,7 @@ module Iom::PHP::Strtotime
       @f = (f = builder.f).nil? ? @relative_to.millisecond : f
     
       # adjust special early
-      case @builder.firstOrLastDayOfMonth
+      case @builder.first_or_last_day_of_month
       when 1
         @d = 1
       when -1
@@ -157,7 +157,7 @@ module Iom::PHP::Strtotime
       # and late
       # todo: check if the logic can be reduced
       # to just one time action
-      case @builder.firstOrLastDayOfMonth
+      case @builder.first_or_last_day_of_month
       when 1
         bom = result.at_beginning_of_month
         result = Time.local(

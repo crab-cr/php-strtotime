@@ -129,9 +129,9 @@ module Iom::PHP::Strtotime::Formats
     def callback (rb : ResultBuilder, match : Regex::MatchData)
       day : String = match[1]
       if day.downcase == "first"
-        rb.firstOrLastDayOfMonth = 1
+        rb.first_or_last_day_of_month = 1
       else
-        rb.firstOrLastDayOfMonth = -1
+        rb.first_or_last_day_of_month = -1
       end
     end
   end
