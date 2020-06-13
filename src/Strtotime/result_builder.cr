@@ -79,5 +79,42 @@ module Iom::PHP::Strtotime
   
       return false
     end
+
+    def reset_as (time : Time)
+      # date
+      @y = time.year
+      @m = time.month
+      @d = time.day
+      # time
+      @h = time.hour
+      @i = time.minute
+      @s = time.second
+      @f = time.millisecond
+    
+      # relative shifts
+      @ry = 0_i32
+      @rm = 0_i32
+      @rd = 0_i32
+      @rh = 0_i32
+      @ri = 0_i32
+      @rs = 0_i32
+      @rf = 0_i32
+    
+      # weekday related shifts
+      @weekday = nil
+      @weekday_behavior = 0_i32
+    
+      # first or last day of month
+      # 0 none, 1 first, -1 last
+      @firstOrLastDayOfMonth = 0_i32
+    
+      # timezone correction in minutes
+      @z = nil
+    
+      # counters
+      @dates = 0_i32
+      @times = 0_i32
+      @zones = 0_i32
+    end
   end
 end

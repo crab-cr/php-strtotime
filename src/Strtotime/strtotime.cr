@@ -31,6 +31,8 @@ module Iom::PHP::Strtotime
 
       if final_rule.nil?
         return nil
+      elsif longest_match.nil?
+        return nil
       elsif final_rule.callback(builder, longest_match) == false
         return nil
       end
