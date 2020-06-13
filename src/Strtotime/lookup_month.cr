@@ -1,51 +1,44 @@
 module Iom::PHP::Strtotime
-  lookup_month_map : Hash(String, Int16) = {
-    "jan" => 0_i16,
-    "january" => 0_i16,
-    "i" => 0_i16,
-    "feb" => 1_i16,
-    "february" => 1_i16,
-    "ii" => 1_i16,
-    "mar" => 2_i16,
-    "march" => 2_i16,
-    "iii" => 2_i16,
-    "apr" => 3_i16,
-    "april" => 3_i16,
-    "iv" => 3_i16,
-    "may" => 4_i16,
-    "v" => 4_i16,
-    "jun" => 5_i16,
-    "june" => 5_i16,
-    "vi" => 5_i16,
-    "jul" => 6_i16,
-    "july" => 6_i16,
-    "vii" => 6_i16,
-    "aug" => 7_i16,
-    "august" => 7_i16,
-    "viii" => 7_i16,
-    "sep" => 8_i16,
-    "sept" => 8_i16,
-    "september" => 8_i16,
-    "ix" => 8_i16,
-    "oct" => 9_i16,
-    "october" => 9_i16,
-    "x" => 9_i16,
-    "nov" => 10_i16,
-    "november" => 10_i16,
-    "xi" => 10_i16,
-    "dec" => 11_i16,
-    "december" => 11_i16,
-    "xii" => 11_i16,
+  lookup_month_map : Hash(String, Int32) = {
+    "jan" => 0_i32,
+    "january" => 0_i32,
+    "i" => 0_i32,
+    "feb" => 1_i32,
+    "february" => 1_i32,
+    "ii" => 1_i32,
+    "mar" => 2_i32,
+    "march" => 2_i32,
+    "iii" => 2_i32,
+    "apr" => 3_i32,
+    "april" => 3_i32,
+    "iv" => 3_i32,
+    "may" => 4_i32,
+    "v" => 4_i32,
+    "jun" => 5_i32,
+    "june" => 5_i32,
+    "vi" => 5_i32,
+    "jul" => 6_i32,
+    "july" => 6_i32,
+    "vii" => 6_i32,
+    "aug" => 7_i32,
+    "august" => 7_i32,
+    "viii" => 7_i32,
+    "sep" => 8_i32,
+    "sept" => 8_i32,
+    "september" => 8_i32,
+    "ix" => 8_i32,
+    "oct" => 9_i32,
+    "october" => 9_i32,
+    "x" => 9_i32,
+    "nov" => 10_i32,
+    "november" => 10_i32,
+    "xi" => 10_i32,
+    "dec" => 11_i32,
+    "december" => 11_i32,
+    "xii" => 11_i32,
   }
 
-  def lookup_month (year_s : String) : Int16
-    year : Int16 = year.try(&.to_i16) || 0_i16
-
-    if year_s.size < 4 && year < 100
-      year + ((year < 70) ? 2000 : 1900)
-    else
-      year
-    end
-
+  def lookup_month (month : String) : Int32?
+    lookup_month_map[month.downcase]?
   end
 end

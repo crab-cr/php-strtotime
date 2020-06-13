@@ -321,7 +321,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match = match, day, month, year, hour, minute, second, tzCorrection
-  #     return rb.ymd(+year, lookupMonth(month), +day) &&
+  #     return rb.ymd(+year, lookup_month(month), +day) &&
   #             rb.time(+hour, +minute, +second, 0) &&
   #             rb.zone(processTzCorrection(tzCorrection))
   #   end
@@ -347,17 +347,20 @@ module Iom::PHP::Strtotime::Formats
     end
   end
 
-  # class DateTextual < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = Regex.new("^" + RE_MONTH_TEXT + "[ .\\t-]*" + RE_DAY + "[,.stndrh\\t ]+" + RE_YEAR, Regex::Options::IGNORE_CASE)
-  #     @name = "datetextual"
-  #   end
-  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match = { match, month, day, year }
-  #     return rb.ymd(processYear(year), lookupMonth(month), +day)
-  #   end
-  # end
+  class DateTextual < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = Regex.new("^" + RE_MONTH_TEXT + "[ .\\t-]*" + RE_DAY + "[,.stndrh\\t ]+" + RE_YEAR, Regex::Options::IGNORE_CASE)
+      @name = "datetextual"
+    end
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
+      month : String = match[1] || ""
+      day : String = match[2] || ""
+      year : String = match[2] || ""
+      # match = { match, month, day, year }
+      return rb.ymd(process_year(year), lookup_month(month), day)
+    end
+  end
 
   # class PointedDate4 < BaseFormatParser
   #   include BaseFormatParserGetters
@@ -379,7 +382,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match = { match, day, month, year }
-  #     return rb.ymd(processYear(year), month - 1, +day)
+  #     return rb.ymd(process_year(year), month - 1, +day)
   #   end
   # end
 
@@ -478,7 +481,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match = { match, month, day, year }
-  #     return rb.ymd(processYear(year), month - 1, +day)
+  #     return rb.ymd(process_year(year), month - 1, +day)
   #   end
   # end
 
@@ -503,7 +506,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match = { match, year, month, day }
-  #     return rb.ymd(processYear(year), month - 1, +day)
+  #     return rb.ymd(process_year(year), month - 1, +day)
   #   end
   # end
 
@@ -565,7 +568,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, year, month, day
-  #     return rb.ymd(processYear(year), lookupMonth(month), +day)
+  #     return rb.ymd(process_year(year), lookup_month(month), +day)
   #   end
   # end
 
@@ -577,7 +580,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, day, month, year
-  #     return rb.ymd(processYear(year), lookupMonth(month), +day)
+  #     return rb.ymd(process_year(year), lookup_month(month), +day)
   #   end
   # end
 
@@ -589,7 +592,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, year
-  #     return rb.ymd(+year, lookupMonth(month), 1)
+  #     return rb.ymd(+year, lookup_month(month), 1)
   #   end
   # end
 
@@ -601,7 +604,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, year, month
-  #     return rb.ymd(+year, lookupMonth(month), 1)
+  #     return rb.ymd(+year, lookup_month(month), 1)
   #   end
   # end
 
@@ -613,7 +616,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, year
-  #     return rb.ymd(processYear(year), lookupMonth(month), +day)
+  #     return rb.ymd(process_year(year), lookup_month(month), +day)
   #   end
   # end
 
@@ -625,7 +628,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day
-  #     return rb.ymd(rb.y, lookupMonth(month), +day)
+  #     return rb.ymd(rb.y, lookup_month(month), +day)
   #   end
   # end
 
@@ -637,7 +640,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, day, month
-  #     return rb.ymd(rb.y, lookupMonth(month), +day)
+  #     return rb.ymd(rb.y, lookup_month(month), +day)
   #   end
   # end
 
@@ -798,7 +801,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month
-  #     return rb.ymd(rb.y, lookupMonth(month), rb.d)
+  #     return rb.ymd(rb.y, lookup_month(month), rb.d)
   #   end
   # end
 
@@ -862,7 +865,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, hour, minute, second
-  #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(+hour, +minute, +second, 0)
+  #     return rb.ymd(rb.y, lookup_month(month), +day) && rb.time(+hour, +minute, +second, 0)
   #   end
   # end
 
@@ -874,7 +877,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, hour, minute, second, meridian
-  #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, +second, 0)
+  #     return rb.ymd(rb.y, lookup_month(month), +day) && rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, +second, 0)
   #   end
   # end
 
@@ -886,7 +889,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, hour, minute
-  #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(+hour, +minute, 0, 0)
+  #     return rb.ymd(rb.y, lookup_month(month), +day) && rb.time(+hour, +minute, 0, 0)
   #   end
   # end
 
@@ -898,7 +901,7 @@ module Iom::PHP::Strtotime::Formats
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, hour, minute, meridian
-  #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, 0, 0)
+  #     return rb.ymd(rb.y, lookup_month(month), +day) && rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, 0, 0)
   #   end
   # end
 end

@@ -25,7 +25,7 @@ module Iom::PHP::Strtotime
         # Iom::PHP::Strtotime::Formats::XmlRpcNoColon.new,
         # Iom::PHP::Strtotime::Formats::Clf.new,
         Iom::PHP::Strtotime::Formats::Iso8601long.new,
-        # Iom::PHP::Strtotime::Formats::DateTextual.new,
+        Iom::PHP::Strtotime::Formats::DateTextual.new,
         # Iom::PHP::Strtotime::Formats::PointedDate4.new,
         # Iom::PHP::Strtotime::Formats::PointedDate2.new,
         # Iom::PHP::Strtotime::Formats::TimeLong24.new,
