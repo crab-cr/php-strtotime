@@ -16,7 +16,7 @@ module Iom::PHP::Strtotime
     "sunday" => 0_i16,
   }
 
-  def lookup_weekday (day_s : String, desired_sunday_number = 0_i16) : Int16
+  def self.lookup_weekday (day_s : String, desired_sunday_number = 0_i16) : Int16
     day_s = day_s.downcase
     if lookup_weekday_map.has? day_s
       lookup_weekday_map[day_s]

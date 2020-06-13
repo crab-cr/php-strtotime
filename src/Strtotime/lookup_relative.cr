@@ -23,7 +23,7 @@ module Iom::PHP::Strtotime
     "this" => 1_i16,
   }
 
-  def lookup_relative (reltext : String) : Relative
+  def self.lookup_relative (reltext : String) : Relative
     reltext = reltext.downcase
     Relative.new(
       amount: relative_numbers_map[reltext]?,

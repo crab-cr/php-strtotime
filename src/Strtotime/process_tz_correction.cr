@@ -1,7 +1,7 @@
 module Iom::PHP::Strtotime
   reTzCorrectionLoose : Regex = /(?:GMT)?([+-])(\d+)(:?)(\d{0,2})/i
 
-  def process_tz_correction (tz_offset : String) : Int64
+  def self.process_tz_correction (tz_offset : String) : Int64
     tz_offset = tz_offset && reTzCorrectionLoose =~ tz_offset
   
     return old_value if !tz_offset
