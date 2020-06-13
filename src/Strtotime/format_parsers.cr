@@ -195,7 +195,6 @@ module Iom::PHP::Strtotime::Formats
     include BaseFormatParserGetters
     def initialize
       @regex = Regex.new("^" + RE_HOUR_12 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
-      puts @regex
       @name = "timelong12"
     end
     def callback (rb : ResultBuilder, match : Regex::MatchData)
@@ -232,17 +231,25 @@ module Iom::PHP::Strtotime::Formats
     end
   end
 
-  # class TimeTiny12 < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = Regex.new("^" + RE_HOUR_12 + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
-  #     @name = "timetiny12"
-  #   end
-  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match = { match, hour, meridian }
-  #     return rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), 0, 0, 0)
-  #   end
-  # end
+  class TimeTiny12 < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = Regex.new("^" + RE_HOUR_12 + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
+      @name = "timetiny12"
+    end
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
+      hour : Int32 = match[1].try(&.to_i32) || 0
+      minute : Int32 = 0
+      second : Int32 = 0
+      frac : Int32 = 0
+      meridian : String = match[5]? || ""
+      return rb.time(
+        Iom::PHP::Strtotime.process_meridian(hour, meridian),
+        minute,
+        second,
+        frac)
+    end
+  end
 
   # class Soap < BaseFormatParser
   #   include BaseFormatParserGetters
@@ -320,17 +327,25 @@ module Iom::PHP::Strtotime::Formats
   #   end
   # end
 
-  # class Iso8601long < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = Regex.new("^t?" + RE_HOUR_24 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND + RE_FRAC, Regex::Options::IGNORE_CASE)
-  #     @name = "iso8601long"
-  #   end
-  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match = { match, hour, minute, second, frac }
-  #     return rb.time(+hour, +minute, +second, +frac.substr(0, 3))
-  #   end
-  # end
+  class Iso8601long < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = Regex.new("^t?" + RE_HOUR_24 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND + RE_FRAC, Regex::Options::IGNORE_CASE)
+      @name = "iso8601long"
+    end
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
+      hour : Int32 = match[1].try(&.to_i32) || 0
+      minute : Int32 = match[2].try(&.to_i32) || 0
+      second : Int32 = match[3].try(&.to_i32) || 0
+      frac : Int32 = match[4][0,3].try(&.to_i32) || 0
+      meridian : String = match[5]? || ""
+      return rb.time(
+        Iom::PHP::Strtotime.process_meridian(hour, meridian),
+        minute,
+        second,
+        frac)
+    end
+  end
 
   # class DateTextual < BaseFormatParser
   #   include BaseFormatParserGetters
