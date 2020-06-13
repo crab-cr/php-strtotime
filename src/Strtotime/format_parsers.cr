@@ -109,23 +109,24 @@ module Iom::PHP::Strtotime::Formats
     end
   end
 
-  # class Timestamp < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = /^@(-?\d+)/i
-  #     @name = "timestamp"
-  #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData?)
-  #     # longest_match = { match, timestamp : Time }
-  #     rb.rs += timestamp.to_unix
-  #     rb.y = 1970
-  #     rb.m = 0
-  #     rb.d = 1
-  #     rb.dates = 0
+  class Timestamp < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = /^@(-?\d+)/i
+      @name = "timestamp"
+    end
+    def callback (rb : ResultBuilder, longest_match : Regex::MatchData?)
+      puts longest_match
+      # # longest_match = { match, timestamp : Time }
+      # rb.rs += timestamp.to_unix
+      # rb.y = 1970
+      # rb.m = 0
+      # rb.d = 1
+      # rb.dates = 0
 
-  #     return rb.resetTime() && rb.zone(0)
-  #   end
-  # end
+      # return rb.resetTime() && rb.zone(0)
+    end
+  end
 
   # class FirstOrLastDay < BaseFormatParser
   #   include BaseFormatParserGetters
