@@ -14,8 +14,8 @@ module Iom::PHP::Strtotime
         Iom::PHP::Strtotime::Formats::FirstOrLastDay.new,
         Iom::PHP::Strtotime::Formats::BackOrFrontOf.new,
         # # Iom::PHP::Strtotime::Formats::WeekdayOf.new, # not implemented
-        # Iom::PHP::Strtotime::Formats::Mssqltime.new,
-        # Iom::PHP::Strtotime::Formats::TimeLong12.new,
+        # Iom::PHP::Strtotime::Formats::Mssqltime.new, # not implemented
+        Iom::PHP::Strtotime::Formats::TimeLong12.new,
         # Iom::PHP::Strtotime::Formats::TimeShort12.new,
         # Iom::PHP::Strtotime::Formats::TimeTiny12.new,
         # Iom::PHP::Strtotime::Formats::Soap.new,

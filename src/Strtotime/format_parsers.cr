@@ -178,22 +178,39 @@ module Iom::PHP::Strtotime::Formats
   #     @name = "mssqltime"
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match = { match, hour, minute, second, frac, meridian }
-  #     return rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, +second, +frac.substr(0, 3))
+  #     hour : Int32 = match[1].try(&.to_i32) || 0
+  #     minute : Int32 = match[2].try(&.to_i32) || 0
+  #     second : Int32 = match[3].try(&.to_i32) || 0
+  #     frac : Int32 = match[4][0,3].try(&.to_i32) || 0
+  #     meridian : String = match[5]? || ""
+  #     return rb.time(
+  #       Iom::PHP::Strtotime.process_meridian(hour, meridian),
+  #       minute,
+  #       second,
+  #       frac)
   #   end
   # end
 
-  # class TimeLong12 < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = Regex.new("^" + RE_HOUR_12 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
-  #     @name = "timelong12"
-  #   end
-  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match = { match, hour, minute, second, meridian }
-  #     return rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, +second, 0)
-  #   end
-  # end
+  class TimeLong12 < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = Regex.new("^" + RE_HOUR_12 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
+      puts @regex
+      @name = "timelong12"
+    end
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
+      hour : Int32 = match[1].try(&.to_i32) || 0
+      minute : Int32 = match[2].try(&.to_i32) || 0
+      second : Int32 = match[3].try(&.to_i32) || 0
+      frac : Int32 = 0
+      meridian : String = match[5]? || ""
+      return rb.time(
+        Iom::PHP::Strtotime.process_meridian(hour, meridian),
+        minute,
+        second,
+        frac)
+    end
+  end
 
   # class TimeShort12 < BaseFormatParser
   #   include BaseFormatParserGetters
