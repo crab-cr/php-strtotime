@@ -7,9 +7,9 @@ module Iom::PHP::Strtotime
       @list = [
         Iom::PHP::Strtotime::Formats::Yesterday.new,
         Iom::PHP::Strtotime::Formats::Now.new,
-        # Iom::PHP::Strtotime::Formats::Noon.new,
-        # Iom::PHP::Strtotime::Formats::MidnightOrToday.new,
-        # Iom::PHP::Strtotime::Formats::Tomorrow.new,
+        Iom::PHP::Strtotime::Formats::Noon.new,
+        Iom::PHP::Strtotime::Formats::MidnightOrToday.new,
+        Iom::PHP::Strtotime::Formats::Tomorrow.new,
         # Iom::PHP::Strtotime::Formats::Timestamp.new,
         # Iom::PHP::Strtotime::Formats::FirstOrLastDay.new,
         # Iom::PHP::Strtotime::Formats::BackOrFrontOf.new,

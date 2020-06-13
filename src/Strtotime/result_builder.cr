@@ -36,7 +36,7 @@ module Iom::PHP::Strtotime
     property zones : Int32 = 0_i32
   
     # helper functions
-    def ymd (y : Int32, m : Int32, d : Int32) : Boolean
+    def ymd (y : Int32, m : Int32, d : Int32) : Bool
       if @dates > 0
         return false
       end
@@ -48,7 +48,7 @@ module Iom::PHP::Strtotime
       return true
     end
   
-    def time (h, i, s, f) : Boolean
+    def time (h, i, s, f) : Bool
       if @times > 0
         return false
       end
@@ -70,7 +70,7 @@ module Iom::PHP::Strtotime
       @times = 0
     end
   
-    def zone (minutes : Int32) : Boolean
+    def zone (minutes : Int32) : Bool
       if @zones <= 1
         @zones += 1
         @z = minutes

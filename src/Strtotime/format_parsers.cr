@@ -75,39 +75,39 @@ module Iom::PHP::Strtotime::Formats
     end
   end
 
-  # class Noon < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = /^noon/i
-  #     @name = "noon"
-  #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData?)
-  #     return rb.resetTime() && rb.time(12, 0, 0, 0)
-  #   end
-  # end
+  class Noon < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = /^noon/i
+      @name = "noon"
+    end
+    def callback (rb : ResultBuilder, longest_match : Regex::MatchData?)
+      return rb.resetTime() && rb.time(12, 0, 0, 0)
+    end
+  end
 
-  # class MidnightOrToday < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = /^(midnight|today)/i
-  #     @name = "midnight | today"
-  #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData?)
-  #     return rb.resetTime()
-  #   end
-  # end
+  class MidnightOrToday < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = /^(midnight|today)/i
+      @name = "midnight | today"
+    end
+    def callback (rb : ResultBuilder, longest_match : Regex::MatchData?)
+      return rb.resetTime()
+    end
+  end
 
-  # class Tomorrow < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = /^tomorrow/i
-  #     @name = "tomorrow"
-  #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData?)
-  #     rb.rd += 1
-  #     return rb.resetTime()
-  #   end
-  # end
+  class Tomorrow < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = /^tomorrow/i
+      @name = "tomorrow"
+    end
+    def callback (rb : ResultBuilder, longest_match : Regex::MatchData?)
+      rb.rd += 1
+      return rb.resetTime()
+    end
+  end
 
   # class Timestamp < BaseFormatParser
   #   include BaseFormatParserGetters
