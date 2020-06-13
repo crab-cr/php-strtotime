@@ -212,17 +212,25 @@ module Iom::PHP::Strtotime::Formats
     end
   end
 
-  # class TimeShort12 < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = Regex.new("^" + RE_HOUR_12 + "[:.]" + RE_MINUTE_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
-  #     @name = "timeshort12"
-  #   end
-  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match = { match, hour, minute, second, meridian }
-  #     return rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, 0, 0)
-  #   end
-  # end
+  class TimeShort12 < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = Regex.new("^" + RE_HOUR_12 + "[:.]" + RE_MINUTE_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
+      @name = "timeshort12"
+    end
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
+      hour : Int32 = match[1].try(&.to_i32) || 0
+      minute : Int32 = match[2].try(&.to_i32) || 0
+      second : Int32 = 0
+      frac : Int32 = 0
+      meridian : String = match[5]? || ""
+      return rb.time(
+        Iom::PHP::Strtotime.process_meridian(hour, meridian),
+        minute,
+        second,
+        frac)
+    end
+  end
 
   # class TimeTiny12 < BaseFormatParser
   #   include BaseFormatParserGetters
