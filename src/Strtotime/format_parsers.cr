@@ -136,29 +136,29 @@ module Iom::PHP::Strtotime::Formats
     end
   end
 
-  # class BackOrFrontOf < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = Regex.new("^(back|front) of " + RE_HOUR_24 + RE_SPACE_OPT + RE_MERIDIAN + "?", Regex::Options::IGNORE_CASE)
-  #     @name = "backof | frontof"
-  #   end
-  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     side : String = match[1]? || ""
-  #     hour : Int32 = match[2]?.try(&.to_i32) || 0
-  #     meridian : String = match[3]? || ""
-  #     back : Bool = side.downcase == "back"
-  #     minute = 15
+  class BackOrFrontOf < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = Regex.new("^(back|front) of " + RE_HOUR_24 + RE_SPACE_OPT + RE_MERIDIAN + "?", Regex::Options::IGNORE_CASE)
+      @name = "backof | frontof"
+    end
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
+      side : String = match[1]? || ""
+      hour : Int32 = match[2]?.try(&.to_i32) || 0
+      meridian : String = match[3]? || ""
+      back : Bool = side.downcase == "back"
+      minute = 15
 
-  #     if !back
-  #       hour -= 1
-  #       minute = 45
-  #     end
+      if !back
+        hour -= 1
+        minute = 45
+      end
 
-  #     hour = Iom::PHP::Strtotime.process_meridian(hour, meridian)
+      hour = Iom::PHP::Strtotime.process_meridian(hour, meridian)
 
-  #     return rb.resetTime() && rb.time(hour, minute, 0, 0)
-  #   end
-  # end
+      return rb.resetTime() && rb.time(hour, minute, 0, 0)
+    end
+  end
 
   # class WeekdayOf < BaseFormatParser
   #   include BaseFormatParserGetters
