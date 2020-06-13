@@ -1,5 +1,5 @@
 module Iom::PHP::Strtotime
-  def process_meridian (hour, meridian : String?)
+  def self.process_meridian (hour, meridian : String?)
     return hour if meridian.nil?
     meridian = meridian.downcase
     if meridian == "a"

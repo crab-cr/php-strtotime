@@ -58,8 +58,8 @@ module Iom::PHP::Strtotime
       when 1
         @d = 1
       when -1
-        @d = 0
-        @m += 1
+        @d = 28
+        # @m += 1
       else
         # pass
       end
@@ -159,9 +159,27 @@ module Iom::PHP::Strtotime
       # to just one time action
       case @builder.firstOrLastDayOfMonth
       when 1
-        result = result.at_beginning_of_month
+        bom = result.at_beginning_of_month
+        result = Time.local(
+          year: result.year,
+          month: result.month,
+          day: bom.day,
+          hour: result.hour,
+          minute: result.minute,
+          second: result.second,
+          nanosecond: result.nanosecond,
+          location: location)
       when -1
-        result = result.at_end_of_month
+        eom = result.at_end_of_month
+        result = Time.local(
+          year: result.year,
+          month: result.month,
+          day: eom.day,
+          hour: result.hour,
+          minute: result.minute,
+          second: result.second,
+          nanosecond: result.nanosecond,
+          location: location)
       else
         # pass
       end

@@ -56,7 +56,7 @@ module Iom::PHP::Strtotime::Formats
       @regex = /^yesterday/i
       @name = "yesterday"
     end
-    def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
       # puts "format_parser:#{@name}:#{__LINE__} #{rb.rd}"
       rb.rd -= 1
       # puts "format_parser:#{@name}:#{__LINE__} #{rb.rd}"
@@ -70,7 +70,7 @@ module Iom::PHP::Strtotime::Formats
       @regex = /^now/i
       @name = "now"
     end
-    def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
       # do nothing
     end
   end
@@ -81,7 +81,7 @@ module Iom::PHP::Strtotime::Formats
       @regex = /^noon/i
       @name = "noon"
     end
-    def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
       return rb.resetTime() && rb.time(12, 0, 0, 0)
     end
   end
@@ -92,7 +92,7 @@ module Iom::PHP::Strtotime::Formats
       @regex = /^(midnight|today)/i
       @name = "midnight | today"
     end
-    def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
       return rb.resetTime()
     end
   end
@@ -103,7 +103,7 @@ module Iom::PHP::Strtotime::Formats
       @regex = /^tomorrow/i
       @name = "tomorrow"
     end
-    def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
       rb.rd += 1
       return rb.resetTime()
     end
@@ -115,26 +115,26 @@ module Iom::PHP::Strtotime::Formats
       @regex = /^@(-?\d+)/i
       @name = "timestamp"
     end
-    def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-      rb.reset_as Time.unix(longest_match[1]?.try(&.to_i32) || 0)
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
+      rb.reset_as Time.unix(match[1]?.try(&.to_i32) || 0)
     end
   end
 
-  # class FirstOrLastDay < BaseFormatParser
-  #   include BaseFormatParserGetters
-  #   def initialize
-  #     @regex = /^(first|last) day of/i
-  #     @name = "firstdayof | lastdayof"
-  #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, day }
-  #     if day.downcase == "first"
-  #       rb.firstOrLastDayOfMonth = 1
-  #     else
-  #       rb.firstOrLastDayOfMonth = -1
-  #     end
-  #   end
-  # end
+  class FirstOrLastDay < BaseFormatParser
+    include BaseFormatParserGetters
+    def initialize
+      @regex = /^(first|last) day of/i
+      @name = "firstdayof | lastdayof"
+    end
+    def callback (rb : ResultBuilder, match : Regex::MatchData)
+      day : String = match[1]
+      if day.downcase == "first"
+        rb.firstOrLastDayOfMonth = 1
+      else
+        rb.firstOrLastDayOfMonth = -1
+      end
+    end
+  end
 
   # class BackOrFrontOf < BaseFormatParser
   #   include BaseFormatParserGetters
@@ -142,10 +142,11 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^(back|front) of " + RE_HOUR_24 + RE_SPACE_OPT + RE_MERIDIAN + "?", Regex::Options::IGNORE_CASE)
   #     @name = "backof | frontof"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, side, hours, meridian }
-  #     back = side.downcase == "back"
-  #     hour = +hours
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     side : String = match[1]? || ""
+  #     hour : Int32 = match[2]?.try(&.to_i32) || 0
+  #     meridian : String = match[3]? || ""
+  #     back : Bool = side.downcase == "back"
   #     minute = 15
 
   #     if !back
@@ -153,7 +154,7 @@ module Iom::PHP::Strtotime::Formats
   #       minute = 45
   #     end
 
-  #     hour = processMeridian(hour, meridian)
+  #     hour = Iom::PHP::Strtotime.process_meridian(hour, meridian)
 
   #     return rb.resetTime() && rb.time(hour, minute, 0, 0)
   #   end
@@ -165,7 +166,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^(" + RE_REL_TEXT_NUM + "|" + RE_REL_TEXT_TEXT + ")" + RE_SPACE + "(" + RE_DAY_FULL + "|" + RE_DAY_ABBR + ")" + RE_SPACE + "of", Regex::Options::IGNORE_CASE)
   #     @name = "weekdayo"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # todo
   #   end
   # end
@@ -176,9 +177,9 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_HOUR_12 + ":" + RE_MINUTE_LZ + ":" + RE_SECOND_LZ + "[:.]([0-9]+)" + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
   #     @name = "mssqltime"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, hour, minute, second, frac, meridian }
-  #     return rb.time(processMeridian(+hour, meridian), +minute, +second, +frac.substr(0, 3))
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, hour, minute, second, frac, meridian }
+  #     return rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, +second, +frac.substr(0, 3))
   #   end
   # end
 
@@ -188,9 +189,9 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_HOUR_12 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
   #     @name = "timelong12"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, hour, minute, second, meridian }
-  #     return rb.time(processMeridian(+hour, meridian), +minute, +second, 0)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, hour, minute, second, meridian }
+  #     return rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, +second, 0)
   #   end
   # end
 
@@ -200,9 +201,9 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_HOUR_12 + "[:.]" + RE_MINUTE_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
   #     @name = "timeshort12"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, hour, minute, second, meridian }
-  #     return rb.time(processMeridian(+hour, meridian), +minute, 0, 0)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, hour, minute, second, meridian }
+  #     return rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, 0, 0)
   #   end
   # end
 
@@ -212,9 +213,9 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_HOUR_12 + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
   #     @name = "timetiny12"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, hour, meridian }
-  #     return rb.time(processMeridian(+hour, meridian), 0, 0, 0)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, hour, meridian }
+  #     return rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), 0, 0, 0)
   #   end
   # end
 
@@ -224,8 +225,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + "-" + RE_MONTH_LZ + "-" + RE_DAY_LZ + "T" + RE_HOUR_24_LZ + ":" + RE_MINUTE_LZ + ":" + RE_SECOND_LZ + RE_FRAC + RE_TZ_CORRECTION + "?", Regex::Options::IGNORE_CASE)
   #     @name = "soap"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day, hour, minute, second, frac, tzCorrection }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day, hour, minute, second, frac, tzCorrection }
   #     return rb.ymd(+year, month - 1, +day) &&
   #             rb.time(+hour, +minute, +second, +frac.substr(0, 3)) &&
   #             rb.zone(processTzCorrection(tzCorrection))
@@ -238,8 +239,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + "-" + RE_MONTH + "-" + RE_DAY + "T" + RE_HOUR_24 + ":" + RE_MINUTE + ":" + RE_SECOND)
   #     @name = "wddx"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day, hour, minute, second }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day, hour, minute, second }
   #     return rb.ymd(+year, month - 1, +day) && rb.time(+hour, +minute, +second, 0)
   #   end
   # end
@@ -250,8 +251,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + ":" + RE_MONTH_LZ + ":" + RE_DAY_LZ + " " + RE_HOUR_24_LZ + ":" + RE_MINUTE_LZ + ":" + RE_SECOND_LZ, Regex::Options::IGNORE_CASE)
   #     @name = "exif"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day, hour, minute, second }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day, hour, minute, second }
   #     return rb.ymd(+year, month - 1, +day) && rb.time(+hour, +minute, +second, 0)
   #   end
   # end
@@ -262,8 +263,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + RE_MONTH_LZ + RE_DAY_LZ + "T" + RE_HOUR_24 + ":" + RE_MINUTE_LZ + ":" + RE_SECOND_LZ)
   #     @name = "xmlrbc"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day, hour, minute, second }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day, hour, minute, second }
   #     return rb.ymd(+year, month - 1, +day) && rb.time(+hour, +minute, +second, 0)
   #   end
   # end
@@ -274,8 +275,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + RE_MONTH_LZ + RE_DAY_LZ + "[Tt]" + RE_HOUR_24 + RE_MINUTE_LZ + RE_SECOND_LZ)
   #     @name = "xmlrbcnocolon"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day, hour, minute, second }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day, hour, minute, second }
   #     return rb.ymd(+year, month - 1, +day) && rb.time(+hour, +minute, +second, 0)
   #   end
   # end
@@ -286,8 +287,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DAY + "/(" + RE_MONTH_ABBR + ")/" + RE_YEAR4 + ":" + RE_HOUR_24_LZ + ":" + RE_MINUTE_LZ + ":" + RE_SECOND_LZ + RE_SPACE + RE_TZ_CORRECTION, Regex::Options::IGNORE_CASE)
   #     @name = "clf"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = match, day, month, year, hour, minute, second, tzCorrection
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = match, day, month, year, hour, minute, second, tzCorrection
   #     return rb.ymd(+year, lookupMonth(month), +day) &&
   #             rb.time(+hour, +minute, +second, 0) &&
   #             rb.zone(processTzCorrection(tzCorrection))
@@ -300,8 +301,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^t?" + RE_HOUR_24 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND + RE_FRAC, Regex::Options::IGNORE_CASE)
   #     @name = "iso8601long"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, hour, minute, second, frac }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, hour, minute, second, frac }
   #     return rb.time(+hour, +minute, +second, +frac.substr(0, 3))
   #   end
   # end
@@ -312,8 +313,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_MONTH_TEXT + "[ .\\t-]*" + RE_DAY + "[,.stndrh\\t ]+" + RE_YEAR, Regex::Options::IGNORE_CASE)
   #     @name = "datetextual"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, month, day, year }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, month, day, year }
   #     return rb.ymd(processYear(year), lookupMonth(month), +day)
   #   end
   # end
@@ -324,7 +325,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DAY + "[.\\t-]" + RE_MONTH + "[.-]" + RE_YEAR4)
   #     @name = "pointeddate4"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, day, month, year
   #     return rb.ymd(+year, month - 1, +day)
   #   end
@@ -336,8 +337,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DAY + "[.\\t]" + RE_MONTH + "\\." + RE_YEAR2)
   #     @name = "pointeddate2"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, day, month, year }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, day, month, year }
   #     return rb.ymd(processYear(year), month - 1, +day)
   #   end
   # end
@@ -348,8 +349,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^t?" + RE_HOUR_24 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND)
   #     @name = "timelong24"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, hour, minute, second }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, hour, minute, second }
   #     return rb.time(+hour, +minute, +second, 0)
   #   end
   # end
@@ -360,8 +361,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + RE_MONTH_LZ + RE_DAY_LZ)
   #     @name = "datenocolon"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day }
   #     return rb.ymd(+year, month - 1, +day)
   #   end
   # end
@@ -372,8 +373,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + "\\.?" + RE_DAY_OF_YEAR)
   #     @name = "pgydotd"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, day }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, day }
   #     return rb.ymd(+year, 0, +day)
   #   end
   # end
@@ -384,8 +385,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^t?" + RE_HOUR_24 + "[:.]" + RE_MINUTE, Regex::Options::IGNORE_CASE)
   #     @name = "timeshort24"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, hour, minute }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, hour, minute }
   #     return rb.time(+hour, +minute, 0, 0)
   #   end
   # end
@@ -396,8 +397,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^t?" + RE_HOUR_24_LZ + RE_MINUTE_LZ + RE_SECOND_LZ, Regex::Options::IGNORE_CASE)
   #     @name = "iso8601nocolon"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, hour, minute, second }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, hour, minute, second }
   #     return rb.time(+hour, +minute, +second, 0)
   #   end
   # end
@@ -411,8 +412,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + "/" + RE_MONTH_LZ + "/" + RE_DAY_LZ + "/")
   #     @name = "iso8601dateslash"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day }
   #     return rb.ymd(+year, month - 1, +day)
   #   end
   # end
@@ -423,8 +424,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + "/" + RE_MONTH + "/" + RE_DAY)
   #     @name = "dateslash"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day }
   #     return rb.ymd(+year, month - 1, +day)
   #   end
   # end
@@ -435,8 +436,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_MONTH + "/" + RE_DAY + "/" + RE_YEAR)
   #     @name = "american"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, month, day, year }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, month, day, year }
   #     return rb.ymd(processYear(year), month - 1, +day)
   #   end
   # end
@@ -447,8 +448,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_MONTH + "/" + RE_DAY)
   #     @name = "americanshort"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, month, day }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, month, day }
   #     return rb.ymd(rb.y, month - 1, +day)
   #   end
   # end
@@ -460,8 +461,8 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR + "-" + RE_MONTH + "-" + RE_DAY)
   #     @name = "gnudateshort | iso8601date2"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
-  #     # longest_match = { match, year, month, day }
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
+  #     # match = { match, year, month, day }
   #     return rb.ymd(processYear(year), month - 1, +day)
   #   end
   # end
@@ -472,7 +473,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4_WITH_SIGN + "-" + RE_MONTH_LZ + "-" + RE_DAY_LZ)
   #     @name = "iso8601date4"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, year, month, day
   #     return rb.ymd(+year, month - 1, +day)
   #   end
@@ -484,7 +485,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^t?" + RE_HOUR_24_LZ + RE_MINUTE_LZ, Regex::Options::IGNORE_CASE)
   #     @name = "gnunocolon"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, hour, minute
   #     # rb rule is a special case
   #     # if time was already set once by any preceding rule, it sets the captured value as year
@@ -508,7 +509,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + "-" + RE_MONTH)
   #     @name = "gnudateshorter"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, year, month
   #     return rb.ymd(+year, month - 1, 1)
   #   end
@@ -522,7 +523,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + "(\\d{3,4}|[4-9]\\d|3[2-9])-(" + RE_MONTH_ABBR + ")-" + RE_DAY_LZ, Regex::Options::IGNORE_CASE)
   #     @name = "pgtextreverse"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, year, month, day
   #     return rb.ymd(processYear(year), lookupMonth(month), +day)
   #   end
@@ -534,7 +535,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DAY + "[ \\t.-]*" + RE_MONTH_TEXT + "[ \\t.-]*" + RE_YEAR, Regex::Options::IGNORE_CASE)
   #     @name = "datefull"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, day, month, year
   #     return rb.ymd(processYear(year), lookupMonth(month), +day)
   #   end
@@ -546,7 +547,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_MONTH_TEXT + "[ .\\t-]*" + RE_YEAR4, Regex::Options::IGNORE_CASE)
   #     @name = "datenoday"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, year
   #     return rb.ymd(+year, lookupMonth(month), 1)
   #   end
@@ -558,7 +559,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + "[ .\\t-]*" + RE_MONTH_TEXT, Regex::Options::IGNORE_CASE)
   #     @name = "datenodayrev"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, year, month
   #     return rb.ymd(+year, lookupMonth(month), 1)
   #   end
@@ -570,7 +571,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^(" + RE_MONTH_ABBR + ")-" + RE_DAY_LZ + "-" + RE_YEAR, Regex::Options::IGNORE_CASE)
   #     @name = "pgtextshort"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, year
   #     return rb.ymd(processYear(year), lookupMonth(month), +day)
   #   end
@@ -582,7 +583,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DATE_NO_YEAR, Regex::Options::IGNORE_CASE)
   #     @name = "datenoyear"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day
   #     return rb.ymd(rb.y, lookupMonth(month), +day)
   #   end
@@ -594,7 +595,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DAY + "[ .\\t-]*" + RE_MONTH_TEXT, Regex::Options::IGNORE_CASE)
   #     @name = "datenoyearrev"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, day, month
   #     return rb.ymd(rb.y, lookupMonth(month), +day)
   #   end
@@ -606,9 +607,9 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4 + "-?W" + RE_WEEK_OF_YEAR + "(?:-?([0-7]))?")
   #     @name = "isoweekday | isoweek"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, year, week, day
-  #     day = longest_match.day
+  #     day = match.day
   #     day = day ? +day : 1
 
   #     if !rb.ymd(+year, 0, 1)
@@ -631,7 +632,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^(" + RE_REL_TEXT_NUM + "|" + RE_REL_TEXT_TEXT + ")" + RE_SPACE + "(" + RE_REL_TEXT_UNIT + ")", Regex::Options::IGNORE_CASE)
   #     @name = "relativetext"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, relValue, relUnit
   #     # todo: implement handling of "rb time-unit"
   #     # eslint-disable-next-line no-unused-vars
@@ -673,7 +674,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^([+-]*)[ \\t]*(\\d+)" + RE_SPACE_OPT + "(" + RE_REL_TEXT_UNIT + "|week)", Regex::Options::IGNORE_CASE)
   #     @name = "relative"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, signs, relValue, relUnit
   #     const minuses = signs.gsub(/[^-]/, "").length
 
@@ -713,7 +714,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^(" + RE_DAY_TEXT + ")", Regex::Options::IGNORE_CASE)
   #     @name = "daytext"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, dayText
   #     rb.resetTime()
   #     rb.weekday = lookupWeekday(dayText, 0)
@@ -730,7 +731,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^(" + RE_REL_TEXT_TEXT + ")" + RE_SPACE + "week", Regex::Options::IGNORE_CASE)
   #     @name = "relativetextweek"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, relText
   #     rb.weekday_behavior = 2
 
@@ -755,7 +756,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^(" + RE_MONTH_FULL + "|" + RE_MONTH_ABBR + ")", Regex::Options::IGNORE_CASE)
   #     @name = "monthfull | monthabbr"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month
   #     return rb.ymd(rb.y, lookupMonth(month), rb.d)
   #   end
@@ -767,7 +768,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_TZ_CORRECTION, Regex::Options::IGNORE_CASE)
   #     @name = "tzcorrection"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     return rb.zone(processTzCorrection(tzCorrection))
   #   end
   # end
@@ -778,7 +779,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = /^ago/i
   #     @name = "ago"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     rb.ry = -rb.ry
   #     rb.rm = -rb.rm
   #     rb.rd = -rb.rd
@@ -795,7 +796,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_YEAR4)
   #     @name = "year4"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, year
   #     rb.y = +year
   #     return true
@@ -808,7 +809,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = /^[ .,\t]+/
   #     @name = "whitespac"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # do nothing
   #   end
   # end
@@ -819,7 +820,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DATE_NO_YEAR + "t?" + RE_HOUR_24 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND, Regex::Options::IGNORE_CASE)
   #     @name = "dateshortwithtimelong"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, hour, minute, second
   #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(+hour, +minute, +second, 0)
   #   end
@@ -831,9 +832,9 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DATE_NO_YEAR + RE_HOUR_12 + "[:.]" + RE_MINUTE + "[:.]" + RE_SECOND_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
   #     @name = "dateshortwithtimelong12"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, hour, minute, second, meridian
-  #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(processMeridian(+hour, meridian), +minute, +second, 0)
+  #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, +second, 0)
   #   end
   # end
 
@@ -843,7 +844,7 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DATE_NO_YEAR + "t?" + RE_HOUR_24 + "[:.]" + RE_MINUTE, Regex::Options::IGNORE_CASE)
   #     @name = "dateshortwithtimeshort"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, hour, minute
   #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(+hour, +minute, 0, 0)
   #   end
@@ -855,9 +856,9 @@ module Iom::PHP::Strtotime::Formats
   #     @regex = Regex.new("^" + RE_DATE_NO_YEAR + RE_HOUR_12 + "[:.]" + RE_MINUTE_LZ + RE_SPACE_OPT + RE_MERIDIAN, Regex::Options::IGNORE_CASE)
   #     @name = "dateshortwithtimeshort12"
   #   end
-  #   def callback (rb : ResultBuilder, longest_match : Regex::MatchData)
+  #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, month, day, hour, minute, meridian
-  #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(processMeridian(+hour, meridian), +minute, 0, 0)
+  #     return rb.ymd(rb.y, lookupMonth(month), +day) && rb.time(Iom::PHP::Strtotime.process_meridian(+hour, meridian), +minute, 0, 0)
   #   end
   # end
 end
