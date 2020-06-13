@@ -1,4 +1,4 @@
-name: strtotime
+name: php-strtotime
 description: |
   php's strtotime implemented in crystal
 
