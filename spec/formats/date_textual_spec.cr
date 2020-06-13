@@ -10,5 +10,8 @@ describe "Iom::PHP::Strtotime::DateTextual" do
     Iom::PHP::Strtotime.strtotime("december 12rd 2004", NOW).should eq Time.parse_rfc3339("2004-12-12T11:00:00+00:00")
     Iom::PHP::Strtotime.strtotime("december 12th 2004", NOW).should eq Time.parse_rfc3339("2004-12-12T11:00:00+00:00")
     Iom::PHP::Strtotime.strtotime("december 12 2004", NOW).should eq Time.parse_rfc3339("2004-12-12T11:00:00+00:00")
+    Iom::PHP::Strtotime.strtotime("sep 12rd 2004", NOW).should eq Time.parse_rfc3339("2004-09-12T11:00:00+00:00")
+    Iom::PHP::Strtotime.strtotime("sept 12rth 2004", NOW).should eq Time.parse_rfc3339("2004-09-12T11:00:00+00:00")
+    Iom::PHP::Strtotime.strtotime("may 12 2004", NOW).should eq Time.parse_rfc3339("2004-05-12T11:00:00+00:00")
   end
 end
