@@ -6,6 +6,10 @@ private NOW = Time.parse_rfc3339("2005-10-18T11:00:00Z")
 # php artisan tinker: \Carbon\Carbon::createFromTimestampUTC(strtotime('yesterday', 1129633200))->toRfc3339String()
 
 describe "Iom::PHP::Strtotime" do
+  it "should allow now as Int64" do
+    Iom::PHP::Strtotime.strtotime("now", 1129633200_i64).should eq 1129633200_i64
+  end
+
   # it "should pass example 1" do
   #   Iom::PHP::Strtotime.strtotime("+1 day", NOW).should eq Time.unix(1129719600)
   # end

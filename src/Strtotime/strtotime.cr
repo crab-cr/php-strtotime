@@ -5,11 +5,13 @@
 private RULES = Iom::PHP::Strtotime::FormatterBag.new
 
 module Iom::PHP::Strtotime
+
+  def self.strtotime (str : String, now : Int64) : Int64?
+    value = self.strtotime(str, Time.unix(now))
+    value.nil? ? nil : value.to_unix
+  end
+
   def self.strtotime (str : String, now : Time = Time.utc) : Time?
-    # now was an int in JS
-    # if (now == nil) {
-    #   now = Math.floor(Date.now() / 1000)
-    # }
     builder = ResultBuilder.new()
 
     while str.size > 0
@@ -43,7 +45,6 @@ module Iom::PHP::Strtotime
     end
 
     # puts builder
-    # result.toDate(now)
     Result.new(builder, now).value
   end
 end
