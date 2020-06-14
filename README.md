@@ -11,7 +11,7 @@ Note: see [src/Strtotime/formatter_parsers.cr](src/Strtotime/formatter_parsers.c
 
    ```yaml
    dependencies:
-     strtotime:
+     php-strtotime:
        github: iomcr/php-strtotime
    ```
 
@@ -20,7 +20,7 @@ Note: see [src/Strtotime/formatter_parsers.cr](src/Strtotime/formatter_parsers.c
 ## Usage
 
 ```crystal
-require "strtotime"
+require "php-strtotime"
 
 value : Time = Iom::PHP::Strtotime.strtotime("yesterday")
 # 2020-06-13 00:00:00 UTC
