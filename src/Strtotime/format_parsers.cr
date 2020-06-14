@@ -372,8 +372,14 @@ module Iom::PHP::Strtotime::Formats
   #     @name = "pointeddate4"
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match, day, month, year
-  #     return rb.ymd(+year, month - 1, +day)
+  #     day : Int32 = match[1].try(&.to_i32) || -1
+  #     month : Int32 = Iom::PHP::Strtotime.lookup_month(match[1] || "") || -1
+  #     year : Int32 = Iom::PHP::Strtotime.process_year(match[3])
+
+  #     return false if month == -1
+  #     return false if day == -1
+
+  #     return rb.ymd(year, month, day)
   #   end
   # end
 
@@ -679,14 +685,14 @@ module Iom::PHP::Strtotime::Formats
   #     @name = "relativetext"
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match, relValue, relUnit
+  #     # match, rel_value, rel_unit
   #     # todo: implement handling of "rb time-unit"
   #     # eslint-disable-next-line no-unused-vars
-  #     rl = lookup_relative(relValue)
+  #     rl = lookup_relative(rel_value)
   #     amount = rl.amount
   #     behavior = rl.behavior
 
-  #     case relUnit.downcase
+  #     case rel_unit.downcase
   #     when "sec", "secs", "second", "seconds"
   #       rb.rs += amount
   #     when "min", "mins", "minute", "minutes"
@@ -705,7 +711,7 @@ module Iom::PHP::Strtotime::Formats
   #       rb.ry += amount
   #     when "mon", "monday", "tue", "tuesday", "wed", "wednesday", "thu", "thursday", "fri", "friday", "sat", "saturday", "sun", "sunday"
   #       rb.resetTime()
-  #       rb.weekday = lookupWeekday(relUnit, 7)
+  #       rb.weekday = lookup_weekday(rel_unit, 7)
   #       rb.weekday_behavior = 1
   #       rb.rd += (amount > 0 ? amount - 1 : amount) * 7
   #     when "weekday", "weekdays"
@@ -721,12 +727,12 @@ module Iom::PHP::Strtotime::Formats
   #     @name = "relative"
   #   end
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
-  #     # match, signs, relValue, relUnit
-  #     const minuses = signs.gsub(/[^-]/, "").length
+  #     # match, signs, rel_value, rel_unit
+  #     minuses = signs.gsub(/[^-]/, "").size
 
-  #     amount = +relValue * Math.pow(-1, minuses)
+  #     amount = +rel_value * Math.pow(-1, minuses)
 
-  #     case relUnit.downcase
+  #     case rel_unit.downcase
   #     when "sec", "secs", "second", "seconds"
   #       rb.rs += amount
   #     when "min", "mins", "minute", "minutes"
@@ -745,7 +751,7 @@ module Iom::PHP::Strtotime::Formats
   #       rb.ry += amount
   #     when "mon", "monday", "tue", "tuesday", "wed", "wednesday", "thu", "thursday", "fri", "friday", "sat", "saturday", "sun", "sunday"
   #       rb.resetTime()
-  #       rb.weekday = lookupWeekday(relUnit, 7)
+  #       rb.weekday = lookup_weekday(rel_unit, 7)
   #       rb.weekday_behavior = 1
   #       rb.rd += (amount > 0 ? amount - 1 : amount) * 7
   #     when "weekday", "weekdays"
@@ -763,7 +769,7 @@ module Iom::PHP::Strtotime::Formats
   #   def callback (rb : ResultBuilder, match : Regex::MatchData)
   #     # match, dayText
   #     rb.resetTime()
-  #     rb.weekday = lookupWeekday(dayText, 0)
+  #     rb.weekday = lookup_weekday(dayText, 0)
 
   #     if rb.weekday_behavior != 2
   #       rb.weekday_behavior = 1
