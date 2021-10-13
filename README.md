@@ -3,6 +3,7 @@
 An in-progress implementation of PHP's strtotime function
 
 Note: see [src/Strtotime/formatter_bag.cr](src/Strtotime/formatter_bag.cr) to see which algorithmns are enabled.
+
 Note: see [src/Strtotime/formatter_parsers.cr](src/Strtotime/formatter_parsers.cr) to see which algorithmns can be finished.
 
 ## Installation
@@ -36,7 +37,7 @@ value : Int64 = Iom::PHP::Strtotime.strtotime("@1129633200").to_unix
 # 1129633200
 ```
 
-## TODO anything else supported by PHP's native strtotime function
+## TODO: anything else supported by PHP's native strtotime function
 ```php
 
 >>> \Carbon\Carbon::createFromTimestampUTC(strtotime('dec 12 2004 4pm', 1129633200))->toRfc3339String()
